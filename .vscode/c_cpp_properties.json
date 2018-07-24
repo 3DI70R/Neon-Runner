@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Pocketsprite",
+            "includePath": [
+                "${workspaceRoot}",
+                "${POCKETSPRITE_PATH}/8bkc-components",
+                "${POCKETSPRITE_PATH}/esp-idf/components"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "${workspaceRoot}",
+                    "${POCKETSPRITE_PATH}/8bkc-components",
+                    "${POCKETSPRITE_PATH}/esp-idf/components"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
