@@ -4,8 +4,7 @@
             "name": "Pocketsprite",
             "includePath": [
                 "${workspaceRoot}",
-                "${POCKETSPRITE_PATH}/8bkc-components",
-                "${POCKETSPRITE_PATH}/esp-idf/components"
+                "${workspaceRoot}/components/game/includes"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

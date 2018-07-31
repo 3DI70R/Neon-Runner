@@ -1,23 +1,9 @@
 {
+    "C_Cpp.autoAddFileAssociations": false,
     "files.associations": {
         "*.h": "c",
         "*.c": "c",
         "*.hpp": "cpp",
         "*.cpp": "cpp",
-        "typeinfo": "cpp",
-        "sstream": "cpp",
-        "array": "cpp",
-        "string_view": "cpp",
-        "string": "cpp",
-        "*.tcc": "cpp",
-        "chrono": "cpp",
-        "limits": "cpp",
-        "deque": "cpp",
-        "list": "cpp",
-        "unordered_map": "cpp",
-        "unordered_set": "cpp",
-        "vector": "cpp",
-        "system_error": "cpp",
-        "cstdlib": "cpp"
     },
 }

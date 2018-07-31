@@ -1,6 +1,8 @@
-#include "pkspr_game.h"
+#include "8bkc-hal.h"
+#include "8bkc-ugui.h"
+#include "ugui.h"
 
 void app_main() 
 {
-    start_game();
+    // Currently do nothing
 }
