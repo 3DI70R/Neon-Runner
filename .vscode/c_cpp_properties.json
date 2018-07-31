@@ -3,17 +3,13 @@
         {
             "name": "Pocketsprite",
             "includePath": [
-                "${workspaceRoot}",
-                "${workspaceRoot}/components/game/includes"
+                "${workspaceRoot}/**",
+                "${POCKETSPRITE_PATH}/8bkc-components/**",
+                "${POCKETSPRITE_PATH}/esp-idf/components/**"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": "",
-                "path": [
-                    "${workspaceRoot}",
-                    "${POCKETSPRITE_PATH}/8bkc-components",
-                    "${POCKETSPRITE_PATH}/esp-idf/components"
-                ]
+                "databaseFilename": ""
             },
             "intelliSenseMode": "clang-x64",
             "cStandard": "c11",
