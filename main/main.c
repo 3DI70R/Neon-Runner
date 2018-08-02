@@ -52,41 +52,59 @@ void app_main()
 
     draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, background_buffer);
 
-    int x_off = 0;
-    int y_off = 0;
-    float depth = 1;
+    vector2 position;
+    float angle = 0;
+    float scale = 1;
+
+    bezier b = 
+    { 
+        { .x = 0.0f, .y = 48.0f },
+        { .x = 32.0f, .y = 48.0f  },
+        { .x = 68.0f, .y = 17.0f },
+        { .x = 68.0f, .y = 0.0f }
+    };
+
     segment s[16];
+    bezier_rasterize(b, s, 10, 15, 16);
 
     while(true) 
     {
         int keys = kchal_get_keys();
-        if(keys & KC_BTN_DOWN) { y_off++; }
-        if(keys & KC_BTN_UP) { y_off--; }
-        if(keys & KC_BTN_LEFT) { x_off--; }
-        if(keys & KC_BTN_RIGHT) { x_off++; }
-        if(keys & KC_BTN_A) { depth += 0.01f; }
-        if(keys & KC_BTN_B) { depth -= 0.01f; };
+        if(keys & KC_BTN_DOWN) { position.y++; }
+        if(keys & KC_BTN_UP) { position.y--; }
+        if(keys & KC_BTN_LEFT) { position.x--; }
+        if(keys & KC_BTN_RIGHT) { position.x++; }
+        if(keys & KC_BTN_A) { scale += 0.01f; }
+        if(keys & KC_BTN_B) { scale -= 0.01f; }
+        if(keys & KC_BTN_START) { angle += 0.01f; }
+        if(keys & KC_BTN_SELECT) { angle -= 0.01f; }
 
-        bezier b = 
-        { 
-            { .x = 0.0f, .y = 48.0f },
-            { .x = 32.0f, .y = 48.0f  },
-            { .x = 68.0f + x_off, .y = 17.0f + y_off },
-            { .x = 68.0f, .y = 0.0f }
-        };
+        transform_set_translation(position);
+        transform_set_rotation(angle);
+        transform_set_scale(scale);
 
-        bezier_rasterize(b, s, 10, 15, 16);
+        vector2 p0 = { .x = 0, .y = 0 };
+        vector2 p1 = { .x = 79, .y = 63 };
+        vector2 v1 = transform_apply(p0, 1);
+        vector2 v2 = transform_apply(p0, 0.8f);
+        vector2 v3 = transform_apply(p1, 1);
+        vector2 v4 = transform_apply(p1, 0.8f);
+        draw_line(v1.x, v1.y, v2.x, v2.y, 255);
+        draw_line(v3.x, v3.y, v4.x, v4.y, 255);
 
         for(int i = 1; i < 8; i++) 
         {
-            segment seg = segment_evaluate(s, 16, fmod(i / 7.0f + depth, 1.0f));
+            segment seg = segment_evaluate(s, 16, i / 7.0f);
             
-            vector2 t1 = vector2_add(seg.position, vector2_from_angle(seg.angle + DEGTORAD(90), seg.width));
-            vector2 t6 = vector2_add(seg.position, vector2_from_angle(seg.angle - DEGTORAD(90), seg.width));
-            vector2 t2 = transform_apply(vector2_lerp(t1, t6, 0.2f), 0.9f);
-            vector2 t3 = transform_apply(vector2_lerp(t1, t6, 0.4f), 0.85f);
-            vector2 t4 = transform_apply(vector2_lerp(t1, t6, 0.6f), 0.85f);
-            vector2 t5 = transform_apply(vector2_lerp(t1, t6, 0.8f), 0.9f);
+            vector2 u = vector2_add(seg.position, vector2_from_angle(seg.angle + DEGTORAD(90), seg.width));
+            vector2 d = vector2_add(seg.position, vector2_from_angle(seg.angle - DEGTORAD(90), seg.width));
+
+            vector2 t1 = transform_apply(u, 1);
+            vector2 t2 = transform_apply(vector2_lerp(u, d, 0.2f), 0.9f);
+            vector2 t3 = transform_apply(vector2_lerp(u, d, 0.4f), 0.85f);
+            vector2 t4 = transform_apply(vector2_lerp(u, d, 0.6f), 0.85f);
+            vector2 t5 = transform_apply(vector2_lerp(u, d, 0.8f), 0.9f);
+            vector2 t6 = transform_apply(d, 1);
 
             draw_line(t1.x, t1.y, t2.x, t2.y, 80);
             draw_line(t2.x, t2.y, t3.x, t3.y, 60);
@@ -100,10 +118,10 @@ void app_main()
             segment s1 = s[i - 1];
             segment s2 = s[i];
             
-            vector2 u1 = vector2_add(s1.position, vector2_from_angle(s1.angle + DEGTORAD(90), s1.width));
-            vector2 u2 = vector2_add(s2.position, vector2_from_angle(s2.angle + DEGTORAD(90), s2.width));
-            vector2 d1 = vector2_add(s1.position, vector2_from_angle(s1.angle - DEGTORAD(90), s1.width));
-            vector2 d2 = vector2_add(s2.position, vector2_from_angle(s2.angle - DEGTORAD(90), s2.width));
+            vector2 u1 = transform_apply(vector2_add(s1.position, vector2_from_angle(s1.angle + DEGTORAD(90), s1.width)), 1);
+            vector2 u2 = transform_apply(vector2_add(s2.position, vector2_from_angle(s2.angle + DEGTORAD(90), s2.width)), 1);
+            vector2 d1 = transform_apply(vector2_add(s1.position, vector2_from_angle(s1.angle - DEGTORAD(90), s1.width)), 1);
+            vector2 d2 = transform_apply(vector2_add(s2.position, vector2_from_angle(s2.angle - DEGTORAD(90), s2.width)), 1);
 
             draw_line(u1.x, u1.y, u2.x, u2.y, 255);
             draw_line(d1.x, d1.y, d2.x, d2.y, 255);

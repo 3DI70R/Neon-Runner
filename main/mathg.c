@@ -35,6 +35,18 @@ vector2 vector2_add(vector2 v1, vector2 v2)
     return v;
 }
 
+vector2 vector2_rotate(vector2 v, float angle)
+{
+    vector2 r;
+
+    float c = cos(angle);
+    float s = sin(angle);
+    r.x = v.x * c - v.y * s;
+    r.y = v.x * s + v.y * c;
+
+    return r;
+}
+
 color color_lerp(color src, color dst, float t) 
 {
     color c;
