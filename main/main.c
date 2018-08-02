@@ -4,6 +4,7 @@
 #include "types.h"
 #include "mathg.h"
 #include "draw.h"
+#include "transform.h"
 
 #define BUFFER_SIZE KC_SCREEN_W * KC_SCREEN_H
 
@@ -14,10 +15,10 @@ unsigned short pocketsprite_buffer[BUFFER_SIZE];
 
 void convert_buffer(unsigned short* pkspr, byte* game, int size) 
 {
-    color ul = { .r = 255, .g = 0, .b = 0 };
-    color ur = { .r = 0, .g = 255,  .b = 0 };
-    color dl = { .r = 0,  .g = 0, .b = 255 };
-    color dr = { .r = 255, .g = 255,   .b = 0 };
+    color ul = { .r = 0, .g = 128, .b = 255 };
+    color ur = { .r = 0, .g = 0,  .b = 255 };
+    color dl = { .r = 255,  .g = 0, .b = 128 };
+    color dr = { .r = 255, .g = 0,   .b = 0 };
 
     for(int y = 0; y < 64; y++) 
     {
@@ -53,8 +54,8 @@ void app_main()
 
     int x_off = 0;
     int y_off = 0;
+    float depth = 1;
     segment s[16];
-    byte pattern[] = { 24, 24, 24, 0, 0, 0, 0, 0, 0 };
 
     while(true) 
     {
@@ -63,6 +64,8 @@ void app_main()
         if(keys & KC_BTN_UP) { y_off--; }
         if(keys & KC_BTN_LEFT) { x_off--; }
         if(keys & KC_BTN_RIGHT) { x_off++; }
+        if(keys & KC_BTN_A) { depth += 0.01f; }
+        if(keys & KC_BTN_B) { depth -= 0.01f; };
 
         bezier b = 
         { 
@@ -73,24 +76,37 @@ void app_main()
         };
 
         bezier_rasterize(b, s, 10, 15, 16);
-        int offset = 0;
+
+        for(int i = 1; i < 8; i++) 
+        {
+            segment seg = segment_evaluate(s, 16, fmod(i / 7.0f + depth, 1.0f));
+            
+            vector2 t1 = vector2_add(seg.position, vector2_from_angle(seg.angle + DEGTORAD(90), seg.width));
+            vector2 t6 = vector2_add(seg.position, vector2_from_angle(seg.angle - DEGTORAD(90), seg.width));
+            vector2 t2 = transform_apply(vector2_lerp(t1, t6, 0.2f), 0.9f);
+            vector2 t3 = transform_apply(vector2_lerp(t1, t6, 0.4f), 0.85f);
+            vector2 t4 = transform_apply(vector2_lerp(t1, t6, 0.6f), 0.85f);
+            vector2 t5 = transform_apply(vector2_lerp(t1, t6, 0.8f), 0.9f);
+
+            draw_line(t1.x, t1.y, t2.x, t2.y, 80);
+            draw_line(t2.x, t2.y, t3.x, t3.y, 60);
+            draw_line(t3.x, t3.y, t4.x, t4.y, 40);
+            draw_line(t4.x, t4.y, t5.x, t5.y, 60);
+            draw_line(t5.x, t5.y, t6.x, t6.y, 80);
+        }
 
         for(int i = 1; i < 16; i++) 
         {
             segment s1 = s[i - 1];
             segment s2 = s[i];
+            
+            vector2 u1 = vector2_add(s1.position, vector2_from_angle(s1.angle + DEGTORAD(90), s1.width));
+            vector2 u2 = vector2_add(s2.position, vector2_from_angle(s2.angle + DEGTORAD(90), s2.width));
+            vector2 d1 = vector2_add(s1.position, vector2_from_angle(s1.angle - DEGTORAD(90), s1.width));
+            vector2 d2 = vector2_add(s2.position, vector2_from_angle(s2.angle - DEGTORAD(90), s2.width));
 
-            vector2 u1 = vector2_add(s1.position, vector2_from_angle(s1.angle, s1.width));
-            vector2 u2 = vector2_add(s2.position, vector2_from_angle(s2.angle, s2.width));
-            vector2 d1 = vector2_add(s1.position, vector2_from_angle(s1.angle + DEGTORAD(180), s1.width));
-            vector2 d2 = vector2_add(s2.position, vector2_from_angle(s2.angle + DEGTORAD(180), s2.width));
-
-            offset = draw_line_pattern((int) s1.position.x, (int) s1.position.y, 
-                                       (int) s2.position.x, (int) s2.position.y, 
-                                       pattern, 9, offset, true);
-
-            draw_line((int) u1.x, (int) u1.y, (int) u2.x, (int) u2.y, 255);
-            draw_line((int) d1.x, (int) d1.y, (int) d2.x, (int) d2.y, 255);
+            draw_line(u1.x, u1.y, u2.x, u2.y, 255);
+            draw_line(d1.x, d1.y, d2.x, d2.y, 255);
         }
 
         convert_buffer(pocketsprite_buffer, background_buffer, BUFFER_SIZE);

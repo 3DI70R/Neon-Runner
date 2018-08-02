@@ -1,6 +1,11 @@
 #include "mathg.h"
 #include "math.h"
- 
+
+float slerp(float src_rad, float dst_rad, float t) 
+{
+    return lerp(angle_wrap(src_rad), angle_wrap(dst_rad), t);
+}
+
 vector2 vector2_lerp(vector2 src, vector2 dst, float t) 
 {
     vector2 r;
@@ -11,14 +16,14 @@ vector2 vector2_lerp(vector2 src, vector2 dst, float t)
 
 float vector2_angle(vector2 from, vector2 to) 
 {
-    return -atan2f(to.y - from.y, to.x - from.x);
+    return atan2f(to.y - from.y, to.x - from.x);
 }
 
 vector2 vector2_from_angle(float angle, float distance) 
 {
     vector2 v;
-    v.x = sin(angle) * distance;
-    v.y = cos(angle) * distance;
+    v.x = cos(angle) * distance;
+    v.y = sin(angle) * distance;
     return v;
 }
 
@@ -69,5 +74,30 @@ void bezier_rasterize(vector2* points, segment* segments, float start_width, flo
         s.position = point;
         
         segments[i] = s;
+    }
+}
+
+segment segment_lerp(segment from, segment to, float t)
+{
+    segment s;
+    s.position = vector2_lerp(from.position, to.position, t);
+    s.width = lerp(from.width, to.width, t);
+    s.angle = slerp(from.angle, to.angle, t);
+    return s;
+}
+
+segment segment_evaluate(segment* segments, int count, float t) 
+{
+    t = clamp01(t) * (count - 1);
+    int index = floor(t);
+    float l = t - index;
+
+    if(l == 0) 
+    {
+        return segments[index];
+    }
+    else 
+    {
+        return segment_lerp(segments[index], segments[index + 1], l);
     }
 }

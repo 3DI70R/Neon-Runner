@@ -34,7 +34,7 @@ int draw_line_pattern(int x0, int y0, int x1, int y1, byte* pattern, int pattern
     int pattern_index = pattern_offset;
  
     while(1) 
-    { 
+    {
         draw_pixel(x0, y0, pattern[pattern_index++]);
 
         if(pattern_index >= pattern_size) 
