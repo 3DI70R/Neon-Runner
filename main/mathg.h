@@ -30,7 +30,9 @@ vector2 vector2_lerp(vector2 src, vector2 dst, float t);
 float vector2_angle(vector2 from, vector2 to);
 vector2 vector2_from_angle(float angle, float distance);
 vector2 vector2_add(vector2 from, vector2 to);
+vector2 vector2_sub(vector2 from, vector2 to);
 vector2 vector2_rotate(vector2 v, float angle);
+vector2 vector2_scale(vector2 v, float scale);
 
 vector2 bezier_evaluate(vector2* points, float t);
 void bezier_rasterize(vector2* points, segment* segments, float start_width, float end_width, int segment_count);

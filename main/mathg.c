@@ -35,16 +35,30 @@ vector2 vector2_add(vector2 v1, vector2 v2)
     return v;
 }
 
+vector2 vector2_sub(vector2 v1, vector2 v2) 
+{
+    vector2 v;
+    v.x = v1.x - v2.x;
+    v.y = v1.y - v2.y;
+    return v;
+}
+
 vector2 vector2_rotate(vector2 v, float angle)
 {
     vector2 r;
-
     float c = cos(angle);
     float s = sin(angle);
     r.x = v.x * c - v.y * s;
     r.y = v.x * s + v.y * c;
-
     return r;
+}
+
+vector2 vector2_scale(vector2 vector, float scale) 
+{
+    vector2 v;
+    v.x = vector.x * scale;
+    v.y = vector.y * scale;
+    return v;
 }
 
 color color_lerp(color src, color dst, float t) 

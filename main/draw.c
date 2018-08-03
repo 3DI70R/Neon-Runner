@@ -76,3 +76,26 @@ void draw_line (int x0, int y0, int x1, int y1, byte color)
 {
     draw_line_pattern(x0, y0, x1, y1, &color, 1, 0, true);
 }
+
+void draw_fill_pattern(byte* pattern, int width, int height, int x_offset, int y_offset)
+{
+    int line = y_offset;
+
+    for(int y = 0; y < current_buffer_height; y++) 
+    {
+        byte* pattern_line = &pattern[line * width];
+
+        for(int x = x_offset; x < current_buffer_width; x += width) 
+        {
+            memcpy(&current_buffer[x + y * current_buffer_width], 
+                   pattern_line, width * sizeof(byte));
+        }
+
+        line++;
+
+        if(line >= height)
+        {
+            line = 0;
+        }
+    }
+}

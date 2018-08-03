@@ -7,5 +7,6 @@ void draw_clear(byte color);
 void draw_pixel(int x, int y, byte color);
 void draw_line (int x0, int y0, int x1, int y1, byte color);
 int draw_line_pattern (int x0, int y0, int x1, int y1, byte* pattern, int pattern_size, int pattern_offset, BOOL repeat);
+void draw_fill_pattern(byte* pattern, int width, int height, int x_offset, int y_offset);
 
 #endif
