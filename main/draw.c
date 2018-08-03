@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+    byte* buffer;
+    int width;
+    int height;
+} layer;
+
+layer layers[MAX_LAYERS];
+
 byte* current_buffer;
 int current_buffer_width;
 int current_buffer_height;
@@ -11,11 +19,18 @@ void draw_fill(byte color)
     memset(current_buffer, color, sizeof(byte) * current_buffer_width * current_buffer_height);
 }
 
-void draw_set_buffer(int width, int height, byte* data) 
+void draw_set_layer_params(int layer_index, int width, int height, byte* data) 
 {
-    current_buffer = data;
-    current_buffer_width = width;
-    current_buffer_height = height;
+    layers[layer_index].buffer = data;
+    layers[layer_index].height = height;
+    layers[layer_index].width = width;
+}
+
+void draw_switch_layer(int layer_id)
+{
+    current_buffer = layers[layer_id].buffer;
+    current_buffer_width = layers[layer_id].width;
+    current_buffer_height = layers[layer_id].height;
 }
 
 void draw_pixel(int x, int y, byte color) 

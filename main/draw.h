@@ -2,7 +2,13 @@
 #define DRAW_H
 #include "types.h"
 
-void draw_set_buffer(int width, int height, byte* buffer);
+#define MAX_LAYERS 3
+#define LAYER_BG 0
+#define LAYER_FG 1
+#define LAYER_OBJ 2
+
+void draw_set_layer_params(int layer_index, int width, int height, byte* data);
+void draw_switch_layer(int layer_id);
 
 void draw_pixel(int x, int y, byte color);
 void draw_line (int x0, int y0, int x1, int y1, byte color);

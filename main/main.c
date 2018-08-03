@@ -6,6 +6,7 @@
 #include "draw.h"
 #include "transform.h"
 #include "string.h"
+#include "pipe.h"
 
 #define IMAGE_WIDTH KC_SCREEN_W
 #define IMAGE_HEIGHT KC_SCREEN_H
@@ -39,7 +40,7 @@ color fg_palette[] =
     { .r = 0,   .g = 128, .b = 255 }
 };
 
-bezier bezier_curve = 
+bezier bezier1 = 
 { 
     { .x = 0.0f, .y = 48.0f },
     { .x = 32.0f, .y = 48.0f  },
@@ -47,17 +48,40 @@ bezier bezier_curve =
     { .x = 68.0f, .y = 0.0f }
 };
 
+bezier bezier2 = 
+{ 
+    { .x = 68.0f, .y = 0.0f },
+    { .x = 68.0f, .y = -25.0f },
+    { .x = 24.0f, .y = -38.0f },
+    { .x = -15.0f, .y = -38.0f }
+};
+
+bezier bezier3 = 
+{ 
+    { .x = -15.0f, .y = -38.0f },
+    { .x = -40, .y = -70  },
+    { .x = -80, .y = -70  },
+    { .x = -60, .y = -130 }
+};
+
+bezier bezier4 = 
+{ 
+    { .x = 0.0f, .y = 48.0f + 80 },
+    { .x = 32.0f, .y = 48.0f + 80  },
+    { .x = 68.0f, .y = 17.0f + 80 },
+    { .x = 68.0f, .y = 0.0f + 80 }
+};
+
 byte background_buffer[BUFFER_SIZE];
 byte foreground_buffer[BUFFER_SIZE];
 byte objects_buffer[BUFFER_SIZE];
 unsigned short pocketsprite_buffer[BUFFER_SIZE];
 
-segment segments[16];
 vector2 position;
 float angle = 0;
 float scale = 1;
 
-void blit_buffer(unsigned short* pkspr, byte* game, color* palette) 
+void blit_buffer_with_palette(unsigned short* pkspr, byte* game, color* palette) 
 {
     color ul = palette[0];
     color ur = palette[1];
@@ -90,8 +114,14 @@ void app_main()
 {
     kchal_init();
 
-    draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, background_buffer);
-    bezier_rasterize(bezier_curve, segments, 10, 15, 16);
+    draw_set_layer_params(LAYER_BG, KC_SCREEN_W, KC_SCREEN_H, background_buffer);
+    draw_set_layer_params(LAYER_FG, KC_SCREEN_W, KC_SCREEN_H, foreground_buffer);
+    draw_set_layer_params(LAYER_OBJ, KC_SCREEN_W, KC_SCREEN_H, objects_buffer);
+    
+    pipe p1 = pipe_create_from_bezier(&bezier1, 10, 20);
+    pipe p2 = pipe_create_from_bezier(&bezier2, 20, 10);
+    pipe p3 = pipe_create_from_bezier(&bezier3, 10, 10);
+    pipe p4 = pipe_create_from_bezier(&bezier4, 10, 10);
 
     while(true) 
     {
@@ -109,65 +139,20 @@ void app_main()
         transform_set_rotation(angle);
         transform_set_scale(scale);
 
-        vector2 p0 = { .x = 0, .y = 0 };
-        vector2 p1 = { .x = 79, .y = 63 };
-        vector2 v1 = transform_apply(p0, 1);
-        vector2 v2 = transform_apply(p0, 0.8f);
-        vector2 v3 = transform_apply(p1, 1);
-        vector2 v4 = transform_apply(p1, 0.8f);
-
-        draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, background_buffer);
+        draw_switch_layer(LAYER_BG);
         draw_fill_pattern(fill_pattern, 8, 8, 0, 0);
 
-        draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, foreground_buffer);
+        draw_switch_layer(LAYER_FG);
         draw_fill(0);
 
-        // debug
-        draw_line(v1.x, v1.y, v2.x, v2.y, 255);
-        draw_line(v3.x, v3.y, v4.x, v4.y, 255);
-
-        for(int i = 1; i < 8; i++) 
-        {
-            segment seg = segment_evaluate(segments, 16, i / 7.0f);
-            
-            vector2 u = vector2_add(seg.position, vector2_from_angle(seg.angle + DEGTORAD(90), seg.width));
-            vector2 d = vector2_add(seg.position, vector2_from_angle(seg.angle - DEGTORAD(90), seg.width));
-
-            vector2 t1 = transform_apply(u, 1);
-            vector2 t2 = transform_apply(vector2_lerp(u, d, 0.2f), 0.9f);
-            vector2 t3 = transform_apply(vector2_lerp(u, d, 0.4f), 0.85f);
-            vector2 t4 = transform_apply(vector2_lerp(u, d, 0.6f), 0.85f);
-            vector2 t5 = transform_apply(vector2_lerp(u, d, 0.8f), 0.9f);
-            vector2 t6 = transform_apply(d, 1);
-
-            draw_line(t1.x, t1.y, t2.x, t2.y, 80);
-            draw_line(t2.x, t2.y, t3.x, t3.y, 60);
-            draw_line(t3.x, t3.y, t4.x, t4.y, 40);
-            draw_line(t4.x, t4.y, t5.x, t5.y, 60);
-            draw_line(t5.x, t5.y, t6.x, t6.y, 80);
-        }
-
-        for(int i = 1; i < 16; i++) 
-        {
-            segment s1 = segments[i - 1];
-            segment s2 = segments[i];
-            
-            vector2 u1 = transform_apply(vector2_add(s1.position, vector2_from_angle(s1.angle + DEGTORAD(90), s1.width)), 1);
-            vector2 u2 = transform_apply(vector2_add(s2.position, vector2_from_angle(s2.angle + DEGTORAD(90), s2.width)), 1);
-            vector2 d1 = transform_apply(vector2_add(s1.position, vector2_from_angle(s1.angle - DEGTORAD(90), s1.width)), 1);
-            vector2 d2 = transform_apply(vector2_add(s2.position, vector2_from_angle(s2.angle - DEGTORAD(90), s2.width)), 1);
-            draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, foreground_buffer);
-            draw_line(u1.x, u1.y, u2.x, u2.y, 255);
-            draw_line(d1.x, d1.y, d2.x, d2.y, 255);
-
-            draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, background_buffer);
-            draw_triangle(u1.x, u1.y, u2.x, u2.y, d1.x, d1.y, 0);
-            draw_triangle(d1.x, d1.y, d2.x, d2.y, u2.x, u2.y, 0);
-        }
+        pipe_draw(&p1);
+        pipe_draw(&p2);
+        pipe_draw(&p3);
+        pipe_draw(&p4);
 
         memset(pocketsprite_buffer, 0, sizeof(unsigned short) * BUFFER_SIZE);
-        blit_buffer(pocketsprite_buffer, background_buffer, bg_palette);
-        blit_buffer(pocketsprite_buffer, foreground_buffer, fg_palette);
+        blit_buffer_with_palette(pocketsprite_buffer, background_buffer, bg_palette);
+        blit_buffer_with_palette(pocketsprite_buffer, foreground_buffer, fg_palette);
         kchal_send_fb(pocketsprite_buffer);
     }
 }
