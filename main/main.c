@@ -120,7 +120,7 @@ void app_main()
         draw_fill_pattern(fill_pattern, 8, 8, 0, 0);
 
         draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, foreground_buffer);
-        draw_clear(0);
+        draw_fill(0);
 
         // debug
         draw_line(v1.x, v1.y, v2.x, v2.y, 255);
@@ -157,8 +157,13 @@ void app_main()
             vector2 d1 = transform_apply(vector2_add(s1.position, vector2_from_angle(s1.angle - DEGTORAD(90), s1.width)), 1);
             vector2 d2 = transform_apply(vector2_add(s2.position, vector2_from_angle(s2.angle - DEGTORAD(90), s2.width)), 1);
 
+            draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, foreground_buffer);
             draw_line(u1.x, u1.y, u2.x, u2.y, 255);
             draw_line(d1.x, d1.y, d2.x, d2.y, 255);
+
+            draw_set_buffer(KC_SCREEN_W, KC_SCREEN_H, background_buffer);
+            draw_triangle(u1.x, u1.y, u2.x, u2.y, d1.x, d1.y, 0);
+            draw_triangle(d1.x, d1.y, d2.x, d2.y, u2.x, u2.y, 0);
         }
 
         memset(pocketsprite_buffer, 0, sizeof(unsigned short) * BUFFER_SIZE);

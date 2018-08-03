@@ -6,7 +6,7 @@ byte* current_buffer;
 int current_buffer_width;
 int current_buffer_height;
 
-void draw_clear(byte color) 
+void draw_fill(byte color) 
 {
     memset(current_buffer, color, sizeof(byte) * current_buffer_width * current_buffer_height);
 }
@@ -97,5 +97,77 @@ void draw_fill_pattern(byte* pattern, int width, int height, int x_offset, int y
         {
             line = 0;
         }
+    }
+}
+
+// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+
+void draw_fill_bottom_triangle(vector2 v1, vector2 v2, vector2 v3, byte color)
+{
+    float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+    float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+
+    float curx1 = v1.x;
+    float curx2 = v1.x;
+
+    for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
+    {
+        draw_line((int) curx1, scanlineY, (int)curx2, scanlineY, color);
+        curx1 += invslope1;
+        curx2 += invslope2;
+    }
+}
+
+void draw_fill_top_triangle(vector2 v1, vector2 v2, vector2 v3, byte color)
+{
+    float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+    float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+    float curx1 = v3.x;
+    float curx2 = v3.x;
+
+    for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--)
+    {
+        draw_line((int)curx1, scanlineY, (int)curx2, scanlineY, color);
+        curx1 -= invslope1;
+        curx2 -= invslope2;
+    }
+}
+
+int vector2_sort( const void * v1, const void * v2 ) 
+{
+    return (int) ((*(vector2*) v1).y - (*(vector2*) v2).y);
+}
+
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, byte color) 
+{
+    vector2 vertices[] = 
+    {
+        { .x = x0, .y = y0 },
+        { .x = x1, .y = y1 },
+        { .x = x2, .y = y2 }
+    };
+
+    qsort(vertices, 3, sizeof(vector2), vector2_sort);
+
+    if (vertices[1].y == vertices[2].y)
+    {
+        draw_fill_bottom_triangle(vertices[0], vertices[1], vertices[2], color);
+    }
+    else if (vertices[0].y == vertices[1].y)
+    {
+        draw_fill_top_triangle(vertices[0], vertices[1], vertices[2], color);
+    } 
+    else
+    {
+        vector2 v4 =
+        { 
+            .y = vertices[1].y,
+            .x = (int)(vertices[0].x + ((float)(vertices[1].y - vertices[0].y) / 
+                 (float)(vertices[2].y - vertices[0].y)) * (vertices[2].x - vertices[0].x))
+        };
+
+        draw_fill_bottom_triangle(vertices[0], vertices[1], v4, color);
+        draw_fill_top_triangle(vertices[1], v4, vertices[2], color);
     }
 }
