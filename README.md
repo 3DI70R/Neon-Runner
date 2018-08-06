@@ -1,2 +1,2 @@
 # Neon Runner
-Test project with me trying to implement game from scratch using plain c
+Test project with me trying to implement simple platform-independent game using C++
