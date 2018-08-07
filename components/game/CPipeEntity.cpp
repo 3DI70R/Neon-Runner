@@ -1,6 +1,6 @@
 #include "CPipeEntity.hpp"
 
-void CPipeEntity::onDraw(CCanvas &canvas, CTransform &transform) {
+void CPipeEntity::onDraw(CCanvas &canvas, CTransformer &transform) {
     
     canvas.setLayer(LAYER_FG);
 

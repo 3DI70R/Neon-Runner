@@ -3,9 +3,6 @@
 #include "TRGBColor.hpp"
 #include "CHal.hpp"
 
-#define COLOR_PLAYER_FG 1
-#define COLOR_PLAYER_BG 2
-
 extern RGBColor defaultBgGradient[];
 extern RGBColor defaultFgGradient[];
 extern RGBColor defaultObjPalette[];

@@ -1,6 +1,9 @@
 #include "CNeonGame.hpp"
 #include "TCubicBezier.hpp"
 #include "CPipeEntity.hpp"
+#include "CTransformer.hpp"
+#include "CCameraTransform.hpp"
+#include "CGlitchEntity.hpp"
 #include "string"
 
 CNeonGame::CNeonGame(CHal h) : hal(h) {
@@ -17,25 +20,30 @@ CNeonGame::CNeonGame(CHal h) : hal(h) {
 
     this->canvas = new CCanvas(hal.getScreenWidth(), hal.getScreenHeight(), layers);
     this->outBlitter = new COutBufferBlitter(bgBuffer, fgBuffer, objBuffer, &hal);
-    this->transform = new CTransform();
-
-    CubicBezier bezier;
-
-    bezier.points[0] = Vector2(0, 48);
-    bezier.points[1] = Vector2(32, 48);
-    bezier.points[2] = Vector2(68, 17);
-    bezier.points[3] = Vector2(68, 0);
-
-    pipe.fromBezier(bezier, 10, 15);
 }
 
 CNeonGame::~CNeonGame() {
     delete this->canvas;
-    delete this->transform;
     delete this->outBlitter;
     delete[] this->bgBuffer;
     delete[] this->fgBuffer;
     delete[] this->objBuffer;
+}
+
+bool CNeonGame::tick(float deltaTime) {
+    glitch.onTick(deltaTime);
+
+    int keys = hal.getInput();
+    if(keys & BTN_DOWN) { glitch.transform.position.y++; }
+    if(keys & BTN_UP) { glitch.transform.position.y--; }
+    if(keys & BTN_LEFT) { glitch.transform.position.x--; }
+    if(keys & BTN_RIGHT) { glitch.transform.position.x++; }
+    if(keys & BTN_A) { glitch.transform.scale += 0.01f; }
+    if(keys & BTN_B) { glitch.transform.scale -= 0.01f; }
+    if(keys & BTN_START) { glitch.transform.angle += 0.01f; }
+    if(keys & BTN_SELECT) { glitch.transform.angle -= 0.01f; }
+
+    return true;
 }
 
 void CNeonGame::render() {
@@ -46,27 +54,25 @@ void CNeonGame::render() {
     canvas->setLayer(LAYER_OBJ);
     canvas->fill(0);
 
-    int keys = hal.getInput();
-    if(keys & BTN_DOWN) { position.y++; }
-    if(keys & BTN_UP) { position.y--; }
-    if(keys & BTN_LEFT) { position.x--; }
-    if(keys & BTN_RIGHT) { position.x++; }
-    if(keys & BTN_A) { scale += 0.01f; }
-    if(keys & BTN_B) { scale -= 0.01f; }
-    if(keys & BTN_START) { angle += 0.01f; }
-    if(keys & BTN_SELECT) { angle -= 0.01f; }
+    CCameraTransform camera;
+    CTransformer transformer(&camera);
 
-    transform->setTranslation(position);
-    transform->setRotation(angle);
-    transform->setScale(scale);
+    CPipeEntity pipe;
+    CubicBezier bezier(
+        Vector2(0, 48),
+        Vector2(32, 48),
+        Vector2(68, 17),
+        Vector2(68, 0)
+    );
 
-    pipe.onDraw(*canvas, *transform);
+    pipe.fromBezier(bezier, 10, 15);
+    pipe.onDraw(*canvas, transformer);
+
+    transformer.pushTransform(glitch.transform);
+    glitch.onDraw(*canvas, transformer);
+    transformer.popTransform();
 
     outBlitter->blit();
-}
-
-bool CNeonGame::tick(float deltaTime) {
-    return true;
 }
 
 // C wrapper functions

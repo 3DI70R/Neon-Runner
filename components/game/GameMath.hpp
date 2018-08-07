@@ -1,8 +1,13 @@
 #pragma once
 #include "math.h"
+#include "cstdlib"
 
 #define PI2 (M_PI + M_PI)
 #define DEGTORAD(x) ((x) * M_PI / 180.0)
+
+inline int randomRange(int min, int max) {
+    return min + rand() % (max - min);
+}
 
 template <typename T> inline T clamp(T value, T min, T max) {
     return value < min ? min : value > max ? max : value;

@@ -1,8 +1,14 @@
 #pragma once
 #include "CCanvas.hpp"
-#include "CTransform.hpp"
+#include "TTransform.hpp"
+#include "CTransformer.hpp"
 
 class CEntity {
+    
     public:
-        virtual void onDraw(CCanvas &canvas, CTransform &transform) = 0;
+        Transform transform;
+
+    public:
+        virtual void onTick(float deltaTime) { /* noop */ };
+        virtual void onDraw(CCanvas &canvas, CTransformer &transformer) = 0;
 };

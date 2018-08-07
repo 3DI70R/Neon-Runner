@@ -20,7 +20,7 @@ class CPipeEntity : public CEntity {
     float endWidth;
 
     public:
-        void onDraw(CCanvas &canvas, CTransform &transform);
+        void onDraw(CCanvas &canvas, CTransformer &transform);
 
         void fromBezier(CubicBezier &bezier, float startWidth, float endWidth);
 };

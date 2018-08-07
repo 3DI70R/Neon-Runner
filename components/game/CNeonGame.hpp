@@ -2,9 +2,9 @@
 #include "neon.h"
 #include "Types.hpp"
 #include "CCanvas.hpp"
-#include "CTransform.hpp"
 #include "COutBufferBlitter.hpp"
 #include "CPipeEntity.hpp"
+#include "CGlitchEntity.hpp"
 #include "CHal.hpp"
 
 class CNeonGame {
@@ -16,14 +16,8 @@ class CNeonGame {
     pcolor* layers[3];
 
     CCanvas* canvas;
-    CTransform* transform;
     COutBufferBlitter* outBlitter;
-
-    // Test
-    Vector2 position;
-    float scale = 1.f;
-    float angle;
-    CPipeEntity pipe;
+    CGlitchEntity glitch;
 
     public:
         CNeonGame(CHal hal);
