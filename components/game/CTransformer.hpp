@@ -13,7 +13,7 @@ class CTransformer {
     public:
         CTransformer(CCameraTransform* camera);
 
-        void pushTransform(Transform transform);
+        void pushTransform(Transform &transform);
         void popTransform();
 
         Vector2 apply(float x, float y, float z = 1);

@@ -1,7 +1,7 @@
 #include "CGlitchEntity.hpp"
 
 void CGlitchEntity::onTick(float deltaTime) {
-    int particle = randomRange(1, GLITCH_PARTICLE_COUNT - 1);
+    int particle = randomRange(1, GLITCH_PARTICLE_COUNT);
     particles[particle].position = Vector2(randomRange(-10, 10), randomRange(-10, 10));
     particles[particle].size = Vector2(randomRange(1, 4), randomRange(1, 10));
     particles[particle].color = randomRange(64, 256);

@@ -8,7 +8,7 @@
 
 CNeonGame::CNeonGame(CHal h) : hal(h) {
 
-    int bufferSize = hal.getScreenWidth() * hal.getScreenHeight();;
+    int bufferSize = hal.getScreenWidth() * hal.getScreenHeight();
     
     this->bgBuffer = new pcolor[bufferSize];
     this->fgBuffer = new pcolor[bufferSize];
@@ -20,18 +20,21 @@ CNeonGame::CNeonGame(CHal h) : hal(h) {
 
     this->canvas = new CCanvas(hal.getScreenWidth(), hal.getScreenHeight(), layers);
     this->outBlitter = new COutBufferBlitter(bgBuffer, fgBuffer, objBuffer, &hal);
+    this->stateMachine = new CGameStateMachine(&hal, &states);
 }
 
 CNeonGame::~CNeonGame() {
     delete this->canvas;
     delete this->outBlitter;
+    delete this->stateMachine;
     delete[] this->bgBuffer;
     delete[] this->fgBuffer;
     delete[] this->objBuffer;
 }
 
 bool CNeonGame::tick(float deltaTime) {
-    glitch.onTick(deltaTime);
+    return stateMachine->tick(deltaTime);
+    /*glitch.onTick(deltaTime);
 
     int keys = hal.getInput();
     if(keys & BTN_DOWN) { glitch.transform.position.y++; }
@@ -41,13 +44,13 @@ bool CNeonGame::tick(float deltaTime) {
     if(keys & BTN_A) { glitch.transform.scale += 0.01f; }
     if(keys & BTN_B) { glitch.transform.scale -= 0.01f; }
     if(keys & BTN_START) { glitch.transform.angle += 0.01f; }
-    if(keys & BTN_SELECT) { glitch.transform.angle -= 0.01f; }
-
-    return true;
+    if(keys & BTN_SELECT) { glitch.transform.angle -= 0.01f; }*/
 }
 
 void CNeonGame::render() {
-    canvas->setLayer(LAYER_BG);
+    stateMachine->render(canvas, outBlitter);
+
+    /*canvas->setLayer(LAYER_BG);
     canvas->fillPattern(defaultFillPattern, 8, 8, 0, 0);
     canvas->setLayer(LAYER_FG);
     canvas->fill(0);
@@ -72,7 +75,7 @@ void CNeonGame::render() {
     glitch.onDraw(*canvas, transformer);
     transformer.popTransform();
 
-    outBlitter->blit();
+    outBlitter->blit();*/
 }
 
 // C wrapper functions

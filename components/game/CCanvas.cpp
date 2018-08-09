@@ -46,23 +46,29 @@ int CCanvas::drawLinePattern(int xFrom, int yFrom, int xTo, int yTo,
     int dy = -abs (yTo - yFrom);
     int sy = yFrom < yTo ? 1 : -1; 
     int err = dx + dy, e2;
-    int pattern_index = patternOffset;
+    int patternIndex = patternOffset;
  
     while(1) 
     {
-        drawPixel(xFrom, yFrom, patternColor[pattern_index++]);
-
-        if(pattern_index >= patternSize) 
+        if(patternIndex >= patternSize) 
         {
             if(repeat) 
             {
-                pattern_index = 0;
+                patternIndex = 0;
             }
             else 
             {
                 break;
             }
         }
+
+        int actualIndex = patternIndex++;
+
+        if(actualIndex < 0) {
+            actualIndex = 0;
+        }
+
+        drawPixel(xFrom, yFrom, patternColor[actualIndex]);
 
         if (xFrom == xTo && yFrom == yTo) 
         {
@@ -84,7 +90,7 @@ int CCanvas::drawLinePattern(int xFrom, int yFrom, int xTo, int yTo,
         }
     }
 
-    return pattern_index;
+    return patternIndex;
 }
 
 void CCanvas::drawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, pcolor color) {

@@ -5,7 +5,7 @@ CTransformer::CTransformer(CCameraTransform* camera) {
     this->camera = camera;
 }
 
-void CTransformer::pushTransform(Transform transform) {
+void CTransformer::pushTransform(Transform &transform) {
     stack.push(current);
     current.position = apply(transform.position, 1);
     current.angle = angleWrap(current.angle + transform.angle);

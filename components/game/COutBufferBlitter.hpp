@@ -7,12 +7,15 @@ extern RGBColor defaultBgGradient[];
 extern RGBColor defaultFgGradient[];
 extern RGBColor defaultObjPalette[];
 
+typedef bool (*StencilTestFunc)(byte, byte);
+
 class COutBufferBlitter {
 
     pcolor* bgBuffer;
     pcolor* fgBuffer;
     pcolor* objBuffer;
     CHal* hal;
+    StencilTestFunc stencil;
 
     RGBColor* bgGradient;
     RGBColor* fgGradient;
@@ -21,15 +24,23 @@ class COutBufferBlitter {
     public:
         COutBufferBlitter(pcolor* bgBuffer, pcolor* fgBuffer, pcolor* objBuffer, CHal* hal);
 
-        inline void setBgGradient(RGBColor* gradient) {
+        void setStencil(StencilTestFunc stencil) {
+            if(stencil == nullptr) {
+                this->stencil = [](byte x, byte y) { return false; };
+            } else {
+                this->stencil = stencil;
+            }
+        }
+
+        void setBgGradient(RGBColor* gradient) {
             bgGradient = gradient;
         }
 
-        inline void setFgGradient(RGBColor* gradient) {
+        void setFgGradient(RGBColor* gradient) {
             fgGradient = gradient;
         }
 
-        inline void setObjPalette(RGBColor* palette) {
+        void setObjPalette(RGBColor* palette) {
             objPalette = palette;
         }
 
